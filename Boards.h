@@ -278,7 +278,7 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 #define PIN_TO_SERVO(p)         (p) // deprecated since v2.4
 
 
-// Arduino MKRZero
+// Arduino MKRZero 
 #elif defined(ARDUINO_SAMD_MKRZERO)
 #define TOTAL_ANALOG_PINS       7
 #define TOTAL_PINS              34 // 8 digital + 3 spi + 2 i2c + 2 uart + 7 analog + 3 usb + 1 aref + 5 sd + 1 bottom pad + 1 led + 1 battery adc
@@ -343,8 +343,10 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 #define PIN_TO_SERVO(p)         (p) // deprecated since v2.4
 
 // Arduino Zero
+// MICROSOFTEXPANSIONACCESS 
 // Note this will work with an Arduino Zero Pro, but not with an Arduino M0 Pro
 // Arduino M0 Pro does not properly map pins to the board labeled pin numbers
+// #elif defined(_VARIANT_ARDUINO_ZERO_) && !defined(MICROSOFTEXPANSIONACCESS)
 #elif defined(_VARIANT_ARDUINO_ZERO_)
 #define TOTAL_ANALOG_PINS       6
 #define TOTAL_PINS              25 // 14 digital + 6 analog + 2 i2c + 3 spi
@@ -363,7 +365,6 @@ writePort(port, value, bitmask):  Write an 8 bit port.
 #define PIN_TO_ANALOG(p)        ((p) - 14)
 #define PIN_TO_PWM(p)           PIN_TO_DIGITAL(p)
 #define PIN_TO_SERVO(p)         (p) // deprecated since v2.4
-
 // Arduino Primo
 #elif defined(ARDUINO_PRIMO)
 #define TOTAL_ANALOG_PINS       6
