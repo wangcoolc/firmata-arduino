@@ -31,6 +31,7 @@
 #include <Wire.h>
 #include <Firmata.h>
 #include "utility/AdcAds1115.h"
+#include "utility/SerialFirmata.h"
 
 #define I2C_WRITE                   B00000000
 #define I2C_READ                    B00001000
@@ -59,6 +60,7 @@ SerialFirmata serialFeature;
 /* analog inputs */
 int analogInputsToReport = 0; // bitwise array to store pin reporting
 #ifdef USE_ADS1115_ANALOG_READ
+#define ANALOG_NUM 2
   ADS1115<TwoWire> ads(Wire); 
 #endif
 /* digital input ports */
@@ -474,12 +476,14 @@ bool ads1115Init(void)
  */
 int16_t ads1115AnalogRead(byte analogPin)
 {
-  if (analogPin > 3)
+  if (analogPin > ANALOG_NUM)
   {
     return -1;
   }
+//   Serial2.printf("analogPin %x\r\n",analogPin);
   int16_t adsValue = ads.getConversionResults((channel_t)analogPin);
-  return map(adsValue,0,32768,0,1024); 
+//   Serial2.printf("adsValue %x\r\n",adsValue);
+  return adsValue;
 }
 #endif
 // -----------------------------------------------------------------------------
@@ -491,7 +495,7 @@ void reportAnalogCallback(byte analogPin, int value)
 {
 #ifdef USE_ADS1115_ANALOG_READ
   // Serial2.printf("reportAnalogCallback\r\n");
-  // Serial2.printf("analogPin %d\r\n",analogPin);
+// Serial2.printf("analogPin %d\r\n",analogPin);
 #endif
   if (analogPin < TOTAL_ANALOG_PINS) {
     if (value == 0) {
