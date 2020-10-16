@@ -74,7 +74,6 @@ boolean SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
 
     switch (mode) {
       case SERIAL_CONFIG:
-        Serial2.println("SERIAL_CONFIG");
         {
           long baud = (long)argv[1] | ((long)argv[2] << 7) | ((long)argv[3] << 14);
           serial_pins pins;
@@ -139,7 +138,6 @@ boolean SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
           break; // SERIAL_CONFIG
         }
       case SERIAL_WRITE:
-        Serial2.println("SERIAL_WRITE");
         {
           byte data;
           serialPort = getPortFromId(portId);
@@ -189,7 +187,6 @@ boolean SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
         }
         break; // SERIAL_READ
       case SERIAL_CLOSE:
-        Serial2.println("SERIAL_CLOSE");
         serialPort = getPortFromId(portId);
         if (serialPort != NULL) {
           if (portId < 8) {
@@ -208,7 +205,7 @@ boolean SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
       case SERIAL_FLUSH:
         serialPort = getPortFromId(portId);
         if (serialPort != NULL) {
-          getPortFromId(portId)->flush();
+          serialPort->flush();
         }
         break; // SERIAL_FLUSH
 #if defined(SoftwareSerial_h)
