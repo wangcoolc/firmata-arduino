@@ -26,12 +26,16 @@
   All Firmata examples that are appended with "MicroSoft" add the following features:
 
   - use 16-bit ADC ads1115 analogread to instead of analogread build-in.
+  - Ability to interface with serial devices using UART, USART, or SoftwareSerial
+    depending on the capatilities of the board.  
+  - Ability to interface with spi devices using SPI 
 */
 #include <Servo.h>
 #include <Wire.h>
 #include <Firmata.h>
 #include "utility/AdcAds1115.h"
 #include "utility/SerialFirmata.h"
+#include "utility/SPIFirmata.h"
 
 #define I2C_WRITE                   B00000000
 #define I2C_READ                    B00001000
@@ -55,6 +59,10 @@
 
 #ifdef FIRMATA_SERIAL_FEATURE
 SerialFirmata serialFeature;
+#endif
+
+#ifdef FIRMATA_SPI_FEATURE
+SPIFirmata spiFeature;
 #endif
 
 /* analog inputs */
@@ -724,6 +732,9 @@ void sysexCallback(byte command, byte argc, byte *argv)
 #ifdef FIRMATA_SERIAL_FEATURE
         serialFeature.handleCapability(pin);
 #endif
+#ifdef FIRMATA_SPI_FEATURE
+        spiFeature.handleCapability(pin);
+#endif
         Firmata.write(127);
       }
       Firmata.write(END_SYSEX);
@@ -757,6 +768,11 @@ void sysexCallback(byte command, byte argc, byte *argv)
       serialFeature.handleSysex(command, argc, argv);
 #endif
       break;
+    case SPI_DATA:
+#ifdef FIRMATA_SPI_FEATURE
+      spiFeature.handleSysex(command, argc, argv);
+#endif
+      break;
   }
 }
 
@@ -774,7 +790,9 @@ void systemResetCallback()
 #ifdef FIRMATA_SERIAL_FEATURE
   serialFeature.reset();
 #endif
-
+#ifdef FIRMATA_SPI_FEATURE
+  spiFeature.reset();
+#endif
   if (isI2CEnabled) {
     disableI2CPins();
   }
