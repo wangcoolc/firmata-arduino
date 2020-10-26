@@ -53,10 +53,9 @@
 // 4) The Firmata stream write buffer size must be equal or greater than the max. 
 //    serial buffer/message size and the Firmata frame size (4 bytes) to prevent fragmentation
 //    on the transport layer.
-//#define FIRMATA_SERIAL_RX_DELAY 50 // [ms]
+#define FIRMATA_SERIAL_RX_DELAY 50 // [ms]
 
 #define FIRMATA_SERIAL_FEATURE
-
 // Serial port Ids
 #define HW_SERIAL0                  0x00
 #define HW_SERIAL1                  0x01

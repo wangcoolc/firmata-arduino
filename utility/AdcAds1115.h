@@ -3,7 +3,7 @@
 
 #ifndef ADC_ADS1115_H
 #define ADC_ADS1115_H
-#define USE_ADS1115_ANALOG_READ
+// #define USE_ADS1115_ANALOG_READ
 #define ADS1115_GND_ADDRESS    (0x48)  // ADDR pin connect to GDN
 #define ADS1115_VDD_ADDRESS    (0x49)  // ADDR pin connect to VDD
 #define ADS1115_SDA_ADDRESS    (0x4A)  // ADDR pin connect to SDA

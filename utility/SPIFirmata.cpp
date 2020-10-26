@@ -52,7 +52,6 @@ bool SPIFirmata::handleSysex(uint8_t command, uint8_t argc, uint8_t *argv)
 
     switch (mode) {
       case SPI_BEGIN:
-        Serial2.println("SPI_BEGIN");
         SPI.begin();
         // SPI pin states are configured by SPI.begin, but we still register them with Firmata.
         Firmata.setPinMode(MOSI, PIN_MODE_SPI);
@@ -62,14 +61,12 @@ bool SPIFirmata::handleSysex(uint8_t command, uint8_t argc, uint8_t *argv)
         //Firmata.setPinMode(SS, PIN_MODE_SPI);
         break;
       case SPI_BEGIN_TRANSACTION:
-        Serial2.println("SPI_BEGIN_TRANSACTION");
       {
         mDeviceId = argv[1] >> 2;
         uint8_t bitOrder = argv[2] & SPI_BIT_ORDER_MASK;
         uint8_t dataMode = argv[2] >> 1;
         uint32_t clockSpeed = (uint32_t)argv[3] | ((uint32_t)argv[4] << 7) |
             ((uint32_t)argv[5] << 14) | ((uint32_t)argv[6] << 21) | ((uint32_t)argv[7] << 28);
-
         // argv[8] = wordSize, but not currently used since SPI.transfer only uses 8-bit words
 
         if (argc > 9) {
@@ -96,12 +93,10 @@ bool SPIFirmata::handleSysex(uint8_t command, uint8_t argc, uint8_t *argv)
         break;
       }
       case SPI_END_TRANSACTION:
-        Serial2.println("SPI_END_TRANSACTION");
         SPI.endTransaction();
         break;
       case SPI_TRANSFER:
       {
-        Serial2.println("SPI_TRANSFER");
         uint8_t csPinControl = argv[2];
         uint8_t numBytes = argv[3];
 
@@ -128,7 +123,6 @@ bool SPIFirmata::handleSysex(uint8_t command, uint8_t argc, uint8_t *argv)
       }
       case SPI_READ:
       {
-        Serial2.println("SPI_READ");
         uint8_t csPinControl = argv[2];
         uint8_t numBytes = argv[3];
 
@@ -141,7 +135,6 @@ bool SPIFirmata::handleSysex(uint8_t command, uint8_t argc, uint8_t *argv)
         break; // SPI_READ
       }
       case SPI_END:
-        Serial2.println("SPI_END");
         SPI.end();
         break;
     } // end switch
@@ -191,8 +184,12 @@ void SPIFirmata::transfer(uint8_t channel, uint8_t numBytes, uint8_t argc, uint8
     buffer[bufferIndex] = argv[i + offset + 1] << 7 | argv[i + offset];
   }
   // During the transfer, the received buffer data is stored in the buffer in-place.
+  pinMode(mCsPin,OUTPUT);
+  digitalWrite(mCsPin, LOW);
+  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
   SPI.transfer(buffer, numBytes);
-
+  SPI.endTransaction();
+  digitalWrite(mCsPin, HIGH);
   reply(channel, numBytes, buffer);
 }
 

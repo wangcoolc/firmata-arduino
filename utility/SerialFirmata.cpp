@@ -26,6 +26,7 @@
 #define SERIAL_RX_BUFFER_SIZE UART_TX_FIFO_SIZE
 #endif
 
+#define SERIAL_RX_BUFFER_SIZE 512
 
 SerialFirmata::SerialFirmata()
 {
@@ -354,6 +355,7 @@ void SerialFirmata::checkSerial()
           numBytesToRead = bytesAvailable;
         } else {
           numBytesToRead = bytesToRead;
+          serialIndex --;
         }
 #if defined(FIRMATA_SERIAL_RX_DELAY)
         if (maxRxDelay[portId] >= 0 && numBytesToRead > 0) {
@@ -365,6 +367,8 @@ void SerialFirmata::checkSerial()
              || (bytesToRead > 0 && bytesAvailable >= bytesToRead)
              || (maxRxDelay[portId] > 0 && (currentMillis < lastBytesReceived[portId] || (currentMillis - lastBytesReceived[portId]) >= maxRxDelay[portId])))) {
             // delay
+            if (numBytesToRead == bytesToRead)
+              serialIndex ++;
             numBytesToRead = 0;
           }
         }
