@@ -36,6 +36,7 @@
 #include "utility/AdcAds1115.h"
 #include "utility/SerialFirmata.h"
 #include "utility/SPIFirmata.h"
+#include "utility/RS485Firmata.h"
 
 #define I2C_WRITE                   B00000000
 #define I2C_READ                    B00001000
@@ -64,6 +65,10 @@ SerialFirmata serialFeature;
 #ifdef FIRMATA_SPI_FEATURE
 SPIFirmata spiFeature;
 #endif
+
+#ifdef FIRMATA_RS485_FEATURE
+RS485SerialFirmata RS485Feature;
+#endif 
 
 /* analog inputs */
 int analogInputsToReport = 0; // bitwise array to store pin reporting
@@ -378,6 +383,10 @@ void setPinModeCallback(byte pin, int mode)
       serialFeature.handlePinMode(pin, PIN_MODE_SERIAL);
 #endif
       break;
+#ifdef FIRMATA_RS485_FEATURE      
+    case PIN_MODE_RS485:
+         RS485Feature.handlePinMode(pin, PIN_MODE_RS485);
+#endif
     default:
       Firmata.sendString("Unknown pin mode"); // TODO: put error msgs in EEPROM
   }
