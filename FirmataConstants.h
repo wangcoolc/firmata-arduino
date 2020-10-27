@@ -88,6 +88,7 @@ static const int PIN_MODE_STEPPER =        0x08; // pin configured for stepper m
 static const int PIN_MODE_ENCODER =        0x09; // pin configured for rotary encoders
 static const int PIN_MODE_SERIAL =         0x0A; // pin configured for serial communication
 static const int PIN_MODE_PULLUP =         0x0B; // enable internal pull-up resistor for pin
+static const int PIN_MODE_RS485 =          0x0C; // pin configured for serial communication
 static const int PIN_MODE_IGNORE =         0x7F; // pin configured to be ignored by digitalWrite and capabilityResponse
 
 static const int TOTAL_PIN_MODES =         13;
