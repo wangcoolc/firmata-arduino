@@ -43,7 +43,7 @@ class CanbusFirmata: public FirmataFeature
     bool readEnable;
     SPIClass *_pSPI = NULL;
     int _intPin;
-    MCP_CAN *_pCAN = NULL;
+    MCP_CAN *_pCAN = (MCP_CAN *)malloc(sizeof(MCP_CAN));
     void reply(bool rxtEnable, uint8_t numBytes, long id ,uint8_t *buffer);
     void checkCANBUS();
 
