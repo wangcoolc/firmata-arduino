@@ -29,6 +29,8 @@
   - Ability to interface with serial devices using UART, USART, or SoftwareSerial
     depending on the capatilities of the board.  
   - Ability to interface with spi devices using SPI 
+  - Ability to interface with CANBUS devices using CANBUS (MCP2515)
+  - Ability to interface with RS485 devices using RS485 
 */
 #include <Servo.h>
 #include <Wire.h>
@@ -37,6 +39,7 @@
 #include "utility/SerialFirmata.h"
 #include "utility/SPIFirmata.h"
 #include "utility/RS485Firmata.h"
+#include "utility/CanbusFirmata.h"
 
 #define I2C_WRITE                   B00000000
 #define I2C_READ                    B00001000
@@ -57,6 +60,10 @@
 /*==============================================================================
  * GLOBAL VARIABLES
  *============================================================================*/
+
+#ifdef FIRMATA_CANBUS_FEATURE
+CanbusFirmata CanbusFeature;
+#endif
 
 #ifdef FIRMATA_SERIAL_FEATURE
 SerialFirmata serialFeature;
@@ -384,8 +391,8 @@ void setPinModeCallback(byte pin, int mode)
 #endif
       break;
 #ifdef FIRMATA_RS485_FEATURE      
-    case PIN_MODE_RS485:
-         RS485Feature.handlePinMode(pin, PIN_MODE_RS485);
+    // case PIN_MODE_RS485:
+    //      RS485Feature.handlePinMode(pin, PIN_MODE_RS485);
 #endif
     default:
       Firmata.sendString("Unknown pin mode"); // TODO: put error msgs in EEPROM
@@ -744,11 +751,14 @@ void sysexCallback(byte command, byte argc, byte *argv)
 #ifdef FIRMATA_SPI_FEATURE
         spiFeature.handleCapability(pin);
 #endif
+#ifdef FIRMATA_CANBUS_FEATURE
+        CanbusFeature.handleCapability(pin);
+#endif
         Firmata.write(127);
       }
       Firmata.write(END_SYSEX);
       break;
-    case PIN_STATE_QUERY:
+      case PIN_STATE_QUERY:
       if (argc > 0) {
         byte pin = argv[0];
         Firmata.write(START_SYSEX);
@@ -777,11 +787,18 @@ void sysexCallback(byte command, byte argc, byte *argv)
       serialFeature.handleSysex(command, argc, argv);
 #endif
       break;
-    case SPI_DATA:
 #ifdef FIRMATA_SPI_FEATURE
+    case SPI_DATA:
       spiFeature.handleSysex(command, argc, argv);
-#endif
       break;
+#endif
+      
+#ifdef FIRMATA_CANBUS_FEATURE
+    case CANBUS_DATA:
+      CanbusFeature.handleSysex(command, argc, argv);
+      break;
+#endif
+
   }
 }
 
@@ -801,6 +818,9 @@ void systemResetCallback()
 #endif
 #ifdef FIRMATA_SPI_FEATURE
   spiFeature.reset();
+#endif
+#ifdef FIRMATA_CANBUS_FEATURE
+  CanbusFeature.reset();
 #endif
   if (isI2CEnabled) {
     disableI2CPins();

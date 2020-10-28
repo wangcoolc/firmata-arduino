@@ -25,7 +25,7 @@
 #if !defined(SERIAL_RX_BUFFER_SIZE) && defined(UART_TX_FIFO_SIZE)
 #define SERIAL_RX_BUFFER_SIZE UART_TX_FIFO_SIZE
 #endif
-
+using namespace rs485;
 #define SERIAL_RX_BUFFER_SIZE 512
 
 RS485SerialFirmata::RS485SerialFirmata()
