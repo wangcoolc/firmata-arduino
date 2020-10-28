@@ -110,7 +110,7 @@
 #define SERIAL_STOP_READING         0x01
 #define SERIAL_MODE_MASK            0xF0
 
-namespace {
+namespace rs485{
 
   struct serial_pins {
     uint8_t rx;
