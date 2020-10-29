@@ -14,7 +14,7 @@
 
 #define FIRMATA_CANBUS_FEATURE 
 
-#define CANBUS_DATA 0x64
+#define CANBUS_DATA                 0x64
 #define PIN_MODE_CAN                0x0E
 
 // CANBUS command bytes
@@ -43,7 +43,7 @@ class CanbusFirmata: public FirmataFeature
     bool readEnable;
     SPIClass *_pSPI = NULL;
     int _intPin;
-    MCP_CAN *_pCAN = NULL;
+    MCP_CAN *_pCAN = (MCP_CAN *)malloc(sizeof(MCP_CAN));
     void reply(bool rxtEnable, uint8_t numBytes, long id ,uint8_t *buffer);
     void checkCANBUS();
 
