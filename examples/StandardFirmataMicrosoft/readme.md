@@ -195,7 +195,7 @@ the state is the status of the pull-up resistor which is 1 if enabled, 0 if disa
 The pin state query can also be used as a verification after sending pin modes
 or data messages.
 
-Pin state query
+**Pin state query**
 ```
 0  START_SYSEX              (0xF0)
 1  pin state query          (0x6D)
@@ -203,7 +203,7 @@ Pin state query
 3  END_SYSEX                (0xF7)
 ```
 
-Pin state response
+**Pin state response**
 ```
 0  START_SYSEX              (0xF0)
 1  pin state response       (0x6E)
@@ -375,3 +375,61 @@ Two byte digital data format, second nibble of byte 0 gives the port number.(eg 
 1  digital pins 0-6 bitmask
 2  digital pin 7 bitmask
 ```
+
+## ANALOG (模拟量与电压比例关系//TODO)
+
+MicroSoft IoT expansion accessory provides a two voltage analog input pin and one current analog input pin.the sample rate of the analog pin is 16-bit to full a lot of applications.There exist mraa-based [example](https://github.com/Hansen0314/mraa/blob/master/examples/c/firmata_aio.c) code on the host side
+
+| type              | pin|detection range|
+| :---------------: | :-:|:-------------:|
+| current analog    | A0 |      0~10V    |
+| voltage analog 1  | A1 |      0~10V    |
+| voltage analog 2  | A2 |      4~20mA   |
+
+### ANALOG READ
+
+there only support 14-bit analog value in normal analog read-mode.
+
+**Toggle analogIn reporting by pin**
+
+```
+0  toggle analogIn reporting (0xC0-0xCF) (MIDI Program Change)
+1  disable(0) / enable(non-zero)
+```
+
+**response analogIn**
+
+```
+0  analog pin, 0xE0-0xEF, (MIDI Pitch Wheel)
+1  analog least significant 7 bits
+2  analog most significant 7 bits
+```
+
+we can get the A0 analog value by use as below HEX.
+
+```
+0xC0 0x01
+```
+
+we can get feedback like as below.that mean A0 value is 256(2^8).
+
+```
+0xE0 0x00 0x01
+```
+
+### EXTENDED ANALOG READ
+
+As an alternative to the normal analog message, this extended version allows
+addressing beyond pin 15 and supports sending analog values with any number of
+bits. The number of data bits is inferred by the length of the message.
+
+```
+0  START_SYSEX              (0xF0)
+1  extended analog message  (0x6F)
+2  pin                      (0-127)
+3  bits 0-6                 (least significant byte)
+4  bits 7-13                (most significant byte)
+... additional bytes may be sent if more bits are needed
+N  END_SYSEX                (0xF7)
+```
+
