@@ -8,9 +8,9 @@
 
 **add 16-bit ADC feature**
 
-**add Bootloader On/Off feature**
-
 **add CANBUS(MCP2515) feature**
+
+**add Bootloader On/Off feature**
 
 **add RS485(THVD1419DR) feature** 
 
@@ -20,30 +20,13 @@ Now we will describe the usage of FirmataMicrosoft.
 
 the info include protocol version,firmata version etc.
 
-### protocol version
-
-if we want to get the protocol version. we can type as below HEX to Microsoft IoT expansion accessory via USB.
-
-Request version report
-```
-0  request version report (0xF9) (MIDI Undefined)
-```
-
-the Version report format as below.
-
-```
-0  version report header (0xF9)
-1  major version (0-127)
-2  minor version (0-127)
-```
-
 ### firmata version
 
 The firmware name to be reported should be exactly the same as the name of the Firmata client file, minus the file extension. So for StandardFirmata.ino, the firmware name is: StandardFirmata.
 
 if we want to get the firmware version. we can type as below HEX to Microsoft IoT expansion accessory via USB.
 
-Query firmware Name and Version
+**Query firmware Name and Version**
 
 ```
 0  START_SYSEX       (0xF0)
@@ -51,7 +34,7 @@ Query firmware Name and Version
 2  END_SYSEX         (0xF7)
 ```
 
-Receive Firmware Name and Version (after query)
+**Receive Firmware Name and Version (after query)**
 
 ```
 0  START_SYSEX       (0xF0)
@@ -64,6 +47,23 @@ Receive Firmware Name and Version (after query)
 7  second char of firmware name (MSB)
 ... for as many bytes as it needs
 N  END_SYSEX         (0xF7)
+```
+
+### protocol version
+
+if we want to get the protocol version. we can type as below HEX to Microsoft IoT expansion accessory via USB.
+
+**Request version report**
+```
+0  request version report (0xF9) (MIDI Undefined)
+```
+
+**the Version report format as below.**
+
+```
+0  version report header (0xF9)
+1  major version (0-127)
+2  minor version (0-127)
 ```
 
 ### Capability Query
@@ -111,7 +111,11 @@ STEPPER            (0x08)
 ENCODER            (0x09)
 SERIAL             (0x0A)
 INPUT_PULLUP       (0x0B)
-```
+SPI                (0x0C)
+CAN                (0x0E)
+```  
+
+//TODO
 
 *If no modes are defined for a pin, no values are returned (other than the separator value `0x7F`) and it should be assumed that pin is unsupported by Firmata.*
 
@@ -139,11 +143,15 @@ Modes utilizing the resolution byte to define type of pin:
 ```
 SERIAL             (0x0A) // RES_RX0 = 0x00 RES_TX0 = 0x01 
 I2C                (0x06) // SCL = 0x00 SDA = 0x01
-```
+SPI                (0x0C) // SCK = 0x00 SDO = 0x01 SDI = 0x02
+CAN                (0x0E) // CAN_L = 0x00 CAN_H = 0X01
+```  
+
+//TODO
 
 *For other features (including I2C until updated) the resolution information is less important so a value of 1 is used.*
 
-## Analog Mapping Query
+### Analog Mapping Query
 
 Analog messages are numbered 0 to 15, which traditionally refer to the Arduino
 pins labeled A0, A1, A2, etc. However, these pins are actually configured using
@@ -176,7 +184,7 @@ these messages are designed for a simple implementation in StandardFirmata,
 rather that bandwidth savings (eg, using packed bit fields).*
 
 
-## Pin State Query
+### Pin State Query
 
 The pin **state** is any data written to the pin (*it is important to note that
 pin state != pin value*). For output modes (digital output,
@@ -213,6 +221,7 @@ N  END_SYSEX                (0xF7)
 Send short string messages between the board and the client application. String length is limited
 to half the buffer size - 3 (for Arduino this limits strings to 30 chars). Commonly used to report
 error messages to the client.
+
 ```
 0  START_SYSEX        (0xF0)
 1  STRING_DATA        (0x71)
@@ -224,8 +233,60 @@ error messages to the client.
 N  END_SYSEX          (0xF7)
 ```
 
-## GPIO
+## SYSTEM
 
+SYSTEM provides a couple of HEX to control the system and get the status of the system.
+
+### RESTART SYSTEM
+
+the all pin status will recover to default mode when the restart system is triggered.重启成功后的现象//TODO
+
+**trigger restart system**
+
+```
+0  START_SYSEX       (0xF0)
+1  RESTART_SYSTEM    (0x50)
+2  END_SYSEX         (0xF7)
+```
+
+### BOOTLOADER MODE
+
+this mode will be used to update the firmware. the system will restart when the firmware update finished.什么方式更新固件//TODO
+
+**enter bootloader mode**
+
+```
+0  START_SYSEX       (0xF0)
+1  BOOTLOADER_ON     (0x51)
+2  END_SYSEX         (0xF7)
+```
+
+### SYSTEM STATUS
+
+the system status response will be auto response when system IO enter over current or over voltage status.Of course, the system status response also will be triggered when the manual query the system status.
+
+**System state query**
+
+```
+0  START_SYSEX                 (0xF0)
+1  SYSTEM_STATUS_QUERY         (0x52)
+2  END_SYSEX                   (0xF7)
+```
+
+**System state response**
+
+```
+0  START_SYSEX                 (0xF0)
+1  SYSTEM_STATUS_RESPONSE      (0x53)
+2  system_status(7-bit)        (0-127) //TODO
+        0x00                   //  regular work
+        0x01                   //  over current
+        0x02                   //  over voltage
+3  END_SYSEX                   (0xF7)
+```
+
+
+## GPIO
 
 General-Purpose Input Output (GPIO) is a digital pin of an IC. It can be used as input or output for interfacing devices.If we want to read switch’s state, sensor data, etc then we need to configure it as input. And if we want to control the LED brightness, motor rotation, show text on display, etc then we need to configure it as output.There exist mraa-based [example](https://github.com/Hansen0314/mraa/blob/master/examples/c/firmata_gpio.c) code on the host side
 
@@ -233,7 +294,7 @@ General-Purpose Input Output (GPIO) is a digital pin of an IC. It can be used as
 
 the GPIO has three modes for now.INPUT,OUTPUT,INPUT_PULLUP.
 
-Set pin mode
+**Set pin mode**
 ```
 0  set digital pin mode (0xF4) (MIDI Undefined)
 1  set pin number (0-127)
@@ -252,6 +313,9 @@ there exist two control mode to produce output in terms of HIGH (3.3 V) or LOW (
 
 the first one can be called port GPIO OUT. 
 
+
+**Set digital port value**
+
 Two byte digital data format, second nibble of byte 0 gives the port number (eg 0x92 is the third port, port 2)
 
 ```
@@ -268,7 +332,7 @@ if we want to sets the digital pin 1 on we can type as below HEX to Microsoft Io
 
 the other one can be called bit GPIO OUT. 
 
-Set digital pin value
+**Set digital pin value**
 ```
 0  set digital pin value (0xF5) (MIDI Undefined)
 1  set pin number (0-127)
@@ -285,7 +349,7 @@ if we want to sets the digital pin 1 on we can type as below HEX to MicroSoft Io
 
 the gpio-in only has one mode is port read mode.
 
-Toggle digital port reporting by port (second nibble of byte 0), eg 0xD1 is port 1 is pins 8 to 15
+**Toggle digital port reporting by port** (second nibble of byte 0), eg 0xD1 is port 1 is pins 8 to 15
 ```
 0  toggle digital port reporting (0xD0-0xDF) (MIDI Aftertouch)
 1  disable(0) / enable(non-zero)
@@ -303,7 +367,7 @@ we can get feedback like this.that mean port 0 GPIO 1 is high(3.3v) and the othe
 0x90 0x02 0x00
 ```
 
-the reply protocol as below.
+**the reply protocol as below.**
 Two byte digital data format, second nibble of byte 0 gives the port number.(eg 0x92 is the third port, port 2)
 
 ```

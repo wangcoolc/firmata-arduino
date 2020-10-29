@@ -14,7 +14,7 @@
 
 #define FIRMATA_CANBUS_FEATURE 
 
-#define CANBUS_DATA 0x64
+#define CANBUS_DATA                 0x64
 #define PIN_MODE_CAN                0x0E
 
 // CANBUS command bytes
