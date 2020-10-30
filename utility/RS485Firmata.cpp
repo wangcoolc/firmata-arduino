@@ -49,8 +49,8 @@ RS485SerialFirmata::RS485SerialFirmata()
 boolean RS485SerialFirmata::handlePinMode(byte pin, int mode)
 {
   // used for both HW and SW serial
-  if (mode == PIN_MODE_SERIAL) {
-    Firmata.setPinMode(pin, PIN_MODE_SERIAL);
+  if (mode == PIN_MODE_RS485) {
+    Firmata.setPinMode(pin, PIN_MODE_RS485);
     return true;
   }
   return false;
@@ -59,14 +59,14 @@ boolean RS485SerialFirmata::handlePinMode(byte pin, int mode)
 void RS485SerialFirmata::handleCapability(byte pin)
 {
   if (IS_PIN_SERIAL(pin)) {
-    Firmata.write(PIN_MODE_SERIAL);
+    Firmata.write(PIN_MODE_RS485);
     Firmata.write(getSerialPinType(pin));
   }
 }
 
 boolean RS485SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
 {
-  if (command == SERIAL_MESSAGE) {
+  if (command == RS485_MESSAGE) {
 
     Stream *serialPort;
     byte mode = argv[0] & SERIAL_MODE_MASK;
@@ -90,8 +90,8 @@ boolean RS485SerialFirmata::handleSysex(byte command, byte argc, byte *argv)
             if (serialPort != NULL) {
               pins = getSerialPinNumbers(portId);
               if (pins.rx != 0 && pins.tx != 0) {
-                Firmata.setPinMode(pins.rx, PIN_MODE_SERIAL);
-                Firmata.setPinMode(pins.tx, PIN_MODE_SERIAL);
+                Firmata.setPinMode(pins.rx, PIN_MODE_RS485);
+                Firmata.setPinMode(pins.tx, PIN_MODE_RS485);
                 // Fixes an issue where some serial devices would not work properly with Arduino Due
                 // because all Arduino pins are set to OUTPUT by default in StandardFirmata.
                 pinMode(pins.rx, INPUT);
@@ -384,7 +384,7 @@ void RS485SerialFirmata::checkSerial()
           lastBytesAvailable[portId] -= numBytesToRead;
 #endif
           Firmata.write(START_SYSEX);
-          Firmata.write(SERIAL_MESSAGE);
+          Firmata.write(RS485_MESSAGE);
           Firmata.write(SERIAL_REPLY | portId);
 
           // relay serial data to the serial device
